@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <!--<version>2.1.4.RELEASE</version>-->
+        <version>2.3.12.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.ceadeal</groupId>
+    <artifactId>javafx-boot</artifactId>
+    <version>1.0</version>
+    <name>javafx-boot</name>
+    <description>JavaFx with Spring Boot</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.roskenet</groupId>
+            <artifactId>springboot-javafx-support</artifactId>
+            <version>2.1.6</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx</artifactId>
+            <version>8.9</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>4.5.6</version>
+        </dependency>
+
+        <!-- jnetpcap抓包 -->
+        <dependency>
+            <groupId>jnetpcap</groupId>
+            <artifactId>jnetpcap</artifactId>
+            <version>1.4.r1425-1g</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!--虽然spring boot 官方说的是，要想排除lombok的话，可以这么写，但是，javafx-maven-plugin不兼容这种写法，要使用下面的classpathExcludes代替-->
+                <!--<configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>-->
+            </plugin>
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>8.8.3</version>
+                <configuration>
+                    <!-- 启动类 -->
+                    <mainClass>com.ceadeal.javafxboot.Application</mainClass>
+                    <!-- 公司名称 -->
+                    <vendor>Ceadeal</vendor>
+                    <!-- 应用名称 ${project.build.finalName} = ${project.artifactId}-${project.version} -->
+                    <appName>${project.build.finalName}</appName>
+                    <!-- 发行版本 -->
+                    <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
+                    <!--
+                        图标设置
+
+                        > 参考：https://stackoverflow.com/questions/15880102/how-to-set-custom-icon-for-javafx-native-package-icon-on-windows
+
+                        # 方式1（按deployDir、appName配置读取ico文件）
+                        # 使用jfx:native打包时，默认会去src/main/deploy/package/windows/${appName}.ico
+                        <deployDir>${project.basedir}/src/main/deploy</deployDir>
+
+                        # 方式2（固定使用一个图标，与版本号无关）
+                        # 优先级高于第一种方式
+                        <bundleArguments>
+                            <icon>${project.basedir}/src/main/resources/icon/icon.ico</icon>
+                        </bundleArguments>
+                     -->
+                    <bundleArguments>
+                        <icon>${project.basedir}/src/main/resources/icon/icon.ico</icon>
+                        <!--下面这2个参数搭配，可实现一个特别重要的功能，就是，提示用户手动选择程序安装目录，默认目录是在:C:\Program Files (x86)\appName-->
+                        <!--设置为true将在Program Files中安装应用程序。设置为false将应用程序安装到用户的主目录中。默认值为false。-->
+                        <systemWide>true</systemWide>
+                        <!-- 让用户选择安装目标文件夹 -->
+                        <installdirChooser>true</installdirChooser>
+                    </bundleArguments>
+                    <!-- 桌面图标 -->
+                    <needShortcut>true</needShortcut>
+                    <!-- 菜单设置 -->
+                    <needMenu>true</needMenu>
+                    <!--成功实现将项目目录下的dll目录下的所有文件复制到了app目录下，app目录也是java.library.path目录，可以直接加载dll-->
+                    <additionalAppResources>${project.basedir}/dll</additionalAppResources>
+                    <!--<additionalBundlerResources>-->
+                    <!--&lt;!&ndash;不能实现添加dll到app目录&ndash;&gt;-->
+                    <!--</additionalBundlerResources>-->
+                    <!--排除掉不想要打包进lib依赖库的依赖-->
+                    <classpathExcludes>
+                        <classpathExclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </classpathExclude>
+                    </classpathExcludes>
+                    <!--如果需要添加原生的dll等，可以不用设置这个，因为在打包后，会自带2个java.library.path目录，一个是app目录下，一个是exe所在的目录，只要把dll放到这2个目录的其中一个下，就可以加载dll-->
+                    <!--jvmProperties可以添加额外的jvm参数-->
+                    <!--<jvmProperties>
+                    </jvmProperties>-->
+
+                    <!--默认情况下，这将被设置为'ALL'，根据你安装的操作系统，以下值对于安装者来说是可能的:-->
+                    <!--windows.app (只创建Windows可执行文件，不生成安装向导的exe)-->
+                    <!--exe (通过InnoIDE生成exe安装程序)-->
+                    <!--msi (Microsoft Windows MSI Installer, via WiX)-->
+                    <!--可以同时添加多个bundler选项，下面是同时生成exe文件夹及exe安装包的-->
+                    <!--<bundler>windows.app</bundler>-->
+                    <bundler>exe</bundler>
+                    <!--如果构建过程中出现问题，可以打开这个，会显示详细的打包过程信息-->
+                    <verbose>true</verbose>
+
+                    <!--生成完后，如果打开verbose的话，最后会提示一行，配置文件已保存到....，可以复制路径，打开查看生成的xxx.iss inno 安装脚本-->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
